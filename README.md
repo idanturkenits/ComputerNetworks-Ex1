@@ -1,2 +1,2 @@
-# ComputerNetwork-Ex1
-First assignment!
+# First assigment in course "Introduction to computer networks"
+
