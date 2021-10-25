@@ -1,10 +1,10 @@
-from socket import socket,AF_INET,SOCK_DGRAM
+from socket import socket, AF_INET, SOCK_DGRAM
 import sys
 
 MY_PORT = int(sys.argv[1])
 
-s = socket(AF_INET,SOCK_DGRAM)
-s.bind(('',MY_PORT))
+s = socket(AF_INET, SOCK_DGRAM)
+s.bind(('', MY_PORT))
 
 printed = []
 while True:
@@ -12,7 +12,7 @@ while True:
     non_binary_data = data.decode('utf-8')
     place = non_binary_data[0:10]
     text = non_binary_data[10:]
-    if(not place in printed):
+    if place not in printed:
         print(text, end="", flush=True)
         printed.append(place)
     s.sendto(data, source_addr)
