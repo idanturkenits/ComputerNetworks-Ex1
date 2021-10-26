@@ -25,9 +25,9 @@ def send_and_get_returned_file(addr, file):
         # deviding the content of the file into 100 bytes chunks 
         chunk = contents[i:i + CHUNK_SIZE]
         received = False
-        ''' 
+        """ 
         if we already saw out packet, we dont need to send and receive it from server
-        '''
+        """
         if number_of_packet in seen:
             received = True
             amount_chunks_got = amount_chunks_got + 1
@@ -41,10 +41,9 @@ def send_and_get_returned_file(addr, file):
                 non_binary_data = data.decode('utf-8')
                 place = int(non_binary_data[:HEADER_SIZE])
 
-                '''
-                we can get any packet from the server(becuase of the delay),so we store the
-                packets we are getting in the seen dictonary
-                '''
+                
+                # we can get any packet from the server(becuase of the delay),so we store the
+                # packets we are getting in the seen dictonary
                 if place not in seen:
                     seen[place] = non_binary_data[HEADER_SIZE:]
                     amount_chunks_got = amount_chunks_got + 1
@@ -53,10 +52,9 @@ def send_and_get_returned_file(addr, file):
                 if number_of_packet == place:
                     number_of_packet = number_of_packet + 1
                     received = True
-            '''
-            if the time for the reacive function ran out, 
-            we are sending the packet again to the server
-            '''
+            
+            # if the time for the reacive function ran out, 
+            # we are sending the packet again to the server
             except OSError:
                 pass
     s.close()
