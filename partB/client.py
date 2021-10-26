@@ -13,18 +13,41 @@ def send_and_get_returned_file(addr, file):
     
     final = ''
     chunk_size = 90
-    i = 1
+    amount_chunks_got = 0
+    number_of_packet = 1
+    seen = dict()
     for chunk in [contents[i:i + chunk_size] for i in range(0, len(contents), chunk_size)]:
         received = False
+        if number_of_packet in seen:
+            received = True
+            amount_chunks_got = amount_chunks_got + 1
+            number_of_packet = number_of_packet + 1
         while not received:
-            s.sendto((((10 - len(str(i))) * '0') + str(i) + str(chunk)).encode(), addr)
+            s.sendto((((10 - len(str(number_of_packet))) * '0') + str(number_of_packet) + str(chunk)).encode(), addr)
             try:
                 data, source_addr = s.recvfrom(100)
-                final = final + str(data.decode("utf-8"))[10:]
-                received = True
-                i = i + 1
+                non_binary_data = data.decode('utf-8')
+                place = non_binary_data[0:10]
+                if int(place) not in seen:
+                    seen[int(place)] = non_binary_data[10:]
+                    amount_chunks_got = amount_chunks_got + 1
+                if(number_of_packet == int(place)):
+                    number_of_packet = number_of_packet + 1
+                    received = True
             except:
                 pass
+    while amount_chunks_got <= (len(contents) / chunk_size):
+        try:
+            data, source_addr = s.recvfrom(100)
+            non_binary_data = data.decode('utf-8')
+            place = non_binary_data[0:10]
+            seen[int(place)] = non_binary_data[10:]
+            amount_chunks_got = amount_chunks_got + 1
+        except:
+            break
+    
+    for x in sorted(seen.keys()):
+        final = final + seen[x]
     return final
 
 
@@ -36,6 +59,6 @@ def check_return(returned_string, file_path):
             
 
 s = socket(AF_INET, SOCK_DGRAM)
-s.settimeout(0.01)
+s.settimeout(0.05)
 returned = send_and_get_returned_file(DEST_ADDR, FILE_PATH)
 check_return(returned, FILE_PATH)
