@@ -1,13 +1,10 @@
 from socket import socket, AF_INET, SOCK_DGRAM
 import sys
 
-DEST_PORT = int(sys.argv[1])
-DEST_IP = sys.argv[2]
-FILE_PATH = sys.argv[3]
-DEST_ADDR = (DEST_IP, DEST_PORT)
-
 
 def send_and_get_returned_file(addr, file):
+    s = socket(AF_INET, SOCK_DGRAM)
+    s.settimeout(0.005)
     with open(file) as f:
         contents = f.read()
     
@@ -27,29 +24,28 @@ def send_and_get_returned_file(addr, file):
             try:
                 data, source_addr = s.recvfrom(100)
                 non_binary_data = data.decode('utf-8')
-                place = non_binary_data[0:10]
-                if int(place) not in seen:
-                    seen[int(place)] = non_binary_data[10:]
+                place = int(non_binary_data[0:10])
+                if place not in seen:
+                    seen[place] = non_binary_data[10:]
                     amount_chunks_got = amount_chunks_got + 1
-                if(number_of_packet == int(place)):
+                if number_of_packet == place:
                     number_of_packet = number_of_packet + 1
                     received = True
             except:
                 pass
-    
+    s.close()
     for x in sorted(seen.keys()):
         final = final + seen[x]
     return final
 
 
-def check_return(returned_string, file_path):
-    with open(file_path) as f:
-        if f.read() == returned_string:
-            print("return is good")
-            exit()
-            
+def main():
+    dest_port = int(sys.argv[1])
+    dest_ip = sys.argv[2]
+    file_path = sys.argv[3]
+    dest_addr = (dest_ip, dest_port)
+    send_and_get_returned_file(dest_addr, file_path)
 
-s = socket(AF_INET, SOCK_DGRAM)
-s.settimeout(0.005)
-returned = send_and_get_returned_file(DEST_ADDR, FILE_PATH)
-check_return(returned, FILE_PATH)
+
+if __name__ == "__main__":
+    main()
