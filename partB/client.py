@@ -36,15 +36,6 @@ def send_and_get_returned_file(addr, file):
                     received = True
             except:
                 pass
-    while amount_chunks_got <= (len(contents) / chunk_size):
-        try:
-            data, source_addr = s.recvfrom(100)
-            non_binary_data = data.decode('utf-8')
-            place = non_binary_data[0:10]
-            seen[int(place)] = non_binary_data[10:]
-            amount_chunks_got = amount_chunks_got + 1
-        except:
-            break
     
     for x in sorted(seen.keys()):
         final = final + seen[x]
@@ -59,6 +50,6 @@ def check_return(returned_string, file_path):
             
 
 s = socket(AF_INET, SOCK_DGRAM)
-s.settimeout(0.05)
+s.settimeout(0.005)
 returned = send_and_get_returned_file(DEST_ADDR, FILE_PATH)
 check_return(returned, FILE_PATH)
