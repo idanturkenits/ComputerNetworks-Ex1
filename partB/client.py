@@ -1,5 +1,7 @@
 from socket import socket, AF_INET, SOCK_DGRAM
-import sys
+from sys import argv
+
+PACKET_SIZE, CHUNK_SIZE, HEADER_SIZE = 100, 90, 10
 
 
 def send_and_get_returned_file(addr, file):
@@ -7,31 +9,30 @@ def send_and_get_returned_file(addr, file):
     s.settimeout(0.005)
     with open(file) as f:
         contents = f.read()
-    
     final = ''
-    chunk_size = 90
     amount_chunks_got = 0
     number_of_packet = 1
     seen = dict()
-    for chunk in [contents[i:i + chunk_size] for i in range(0, len(contents), chunk_size)]:
+    for i in range(0, len(contents), CHUNK_SIZE):
+        chunk = contents[i:i + CHUNK_SIZE]
         received = False
         if number_of_packet in seen:
             received = True
             amount_chunks_got = amount_chunks_got + 1
             number_of_packet = number_of_packet + 1
         while not received:
-            s.sendto((((10 - len(str(number_of_packet))) * '0') + str(number_of_packet) + str(chunk)).encode(), addr)
+            s.sendto(f'{number_of_packet:0{HEADER_SIZE}}{chunk}'.encode(), addr)
             try:
-                data, source_addr = s.recvfrom(100)
+                data, source_addr = s.recvfrom(PACKET_SIZE)
                 non_binary_data = data.decode('utf-8')
-                place = int(non_binary_data[0:10])
+                place = int(non_binary_data[:HEADER_SIZE])
                 if place not in seen:
-                    seen[place] = non_binary_data[10:]
+                    seen[place] = non_binary_data[HEADER_SIZE:]
                     amount_chunks_got = amount_chunks_got + 1
                 if number_of_packet == place:
                     number_of_packet = number_of_packet + 1
                     received = True
-            except:
+            except OSError:
                 pass
     s.close()
     for x in sorted(seen.keys()):
@@ -40,12 +41,10 @@ def send_and_get_returned_file(addr, file):
 
 
 def main():
-    dest_port = int(sys.argv[1])
-    dest_ip = sys.argv[2]
-    file_path = sys.argv[3]
-    dest_addr = (dest_ip, dest_port)
+    dest_addr = (argv[2], int(argv[1]))
+    file_path = argv[3]
     send_and_get_returned_file(dest_addr, file_path)
 
 
-if __name__ == "__main__":
+if "__main__" == __name__:
     main()

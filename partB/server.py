@@ -1,21 +1,26 @@
 from socket import socket, AF_INET, SOCK_DGRAM
-import sys
+from sys import argv
+from client import HEADER_SIZE, PACKET_SIZE
 
-MY_PORT = int(sys.argv[1])
 
-s = socket(AF_INET, SOCK_DGRAM)
-s.bind(('', MY_PORT))
+def main():
+    my_port = int(argv[1])
+    s = socket(AF_INET, SOCK_DGRAM)
+    s.bind(('', my_port))
+    printed = []
+    seen = dict()
+    i = 1
+    while True:
+        data, source_addr = s.recvfrom(PACKET_SIZE)
+        non_binary_data = data.decode('utf-8')
+        place = int(non_binary_data[:HEADER_SIZE])
+        seen[place] = non_binary_data[HEADER_SIZE:]
+        while i in seen and i not in printed:
+            print(seen[i], end="", flush=True)
+            printed.append(i)
+            i = i + 1
+        s.sendto(data, source_addr)
 
-printed = []
-seen = dict()
-i = 1
-while True:
-    data, source_addr = s.recvfrom(100)
-    non_binary_data = data.decode('utf-8')
-    place = non_binary_data[0:10]
-    seen[int(place)] = non_binary_data
-    while i in seen and i not in printed:
-        print(seen[i][10:], end="", flush=True)
-        printed.append(i)
-        i = i + 1
-    s.sendto(data, source_addr)
+
+if "__main__" == __name__:
+    main()
