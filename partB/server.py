@@ -1,34 +1,32 @@
-from socket import socket, AF_INET, SOCK_DGRAM, error
+from socket import socket, AF_INET, SOCK_DGRAM
 from sys import argv
-from client import HEADER_SIZE, PACKET_SIZE
+from client import HEADER_SIZE, PACKET_SIZE, validate_port, validate_argv
 
 
 def infinitely_receive_and_print(s):
-    seen, printed, package_number = dict(), [], 0
+    printed = []
     while True:
         data, source_addr = s.recvfrom(PACKET_SIZE)
         non_binary_data = data.decode('utf-8')
         place = int(non_binary_data[:HEADER_SIZE])
-        seen[place] = non_binary_data[HEADER_SIZE:]
-        while package_number in seen.keys() and package_number not in printed:
-            print(seen[package_number], end="", flush=True)
-            printed.append(package_number)
-            package_number = package_number + 1
+        while place not in printed:
+            print(non_binary_data[HEADER_SIZE:], end='', flush=True)
+            printed.append(place)
         s.sendto(data, source_addr)
 
 
 def main():
     try:
-        if len(argv) != 2:
-            raise ValueError(f'Exactly 1 arguments are necessary, {len(argv) - 1} were inserted.')
+        validate_argv(1)
         my_port = int(argv[1])
+        validate_port(my_port)
         s = socket(AF_INET, SOCK_DGRAM)
         s.bind(('', my_port))
         infinitely_receive_and_print(s)
         s.close()
-    except (ValueError, error) as e:
+    except Exception as e:
         print(e)
 
 
-if "__main__" == __name__:
+if '__main__' == __name__:
     main()

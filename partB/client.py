@@ -1,7 +1,21 @@
-from socket import socket, AF_INET, SOCK_DGRAM, error
+from socket import socket, AF_INET, SOCK_DGRAM
 from sys import argv
-
 PACKET_SIZE, CHUNK_SIZE, HEADER_SIZE = 100, 90, 10
+
+
+def validate_port(port):
+    if not 0 <= port < 2 ** 16:
+        raise ValueError('Invalid port.')
+
+
+def validate_ipv4(ip):
+    if len(ip.split('.')) != 4 or not (number.isdigit() and 0 < int(number) < 255 for number in ip.split('.')):
+        raise ValueError('Invalid IP.')
+    
+
+def validate_argv(params):
+    if len(argv) != params + 1:
+        raise ValueError(f'Exactly {params} arguments are necessary, {len(argv) - 1} were inserted.')
 
 
 def send_and_get_returned_file(addr, file):
@@ -30,14 +44,15 @@ def send_and_get_returned_file(addr, file):
 
 def main():
     try:
-        if len(argv) != 4:
-            raise ValueError(f'Exactly 3 arguments are necessary, {len(argv) - 1} were inserted.')
-        dest_addr = (argv[2], int(argv[1]))
-        file_path = argv[3]
+        validate_argv(3)
+        port, ip, file_path = int(argv[1]), argv[2], argv[3]
+        validate_port(port)
+        validate_ipv4(ip)
+        dest_addr = (ip, port)
         send_and_get_returned_file(dest_addr, file_path)
-    except (FileNotFoundError, ValueError, error) as e:
+    except Exception as e:
         print(e)
 
 
-if "__main__" == __name__:
+if '__main__' == __name__:
     main()
