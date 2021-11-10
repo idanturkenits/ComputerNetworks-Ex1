@@ -3,7 +3,11 @@ from sys import argv
 from client import HEADER_SIZE, PACKET_SIZE, validate_port, validate_argv
 
 
-def infinitely_receive_and_print(s):
+def infinitely_receive_and_print(s: socket) -> None:
+    """
+    Infinitely receives, prints and resends packets.
+    :param s: the UDP socket that the packets go through.
+    """
     printed = []
     while True:
         data, source_addr = s.recvfrom(PACKET_SIZE)

@@ -1,26 +1,48 @@
 from socket import socket, AF_INET, SOCK_DGRAM
 from sys import argv
+
 PACKET_SIZE, CHUNK_SIZE, HEADER_SIZE = 100, 90, 10
 
 
-def validate_port(port):
+def validate_port(port: int) -> None:
+    """
+    Validates that a given number is a port.
+    :param port: the given number.
+    :raise ValueError if the port is invalid.
+    """
     if not 0 <= port < 2 ** 16:
         raise ValueError('Invalid port.')
 
 
-def validate_ipv4(ip):
+def validate_ipv4(ip: str) -> None:
+    """
+    Validates that a given string is an ipv4 address.
+    :param ip: the given string.
+    :raise ValueError: if the ip is invalid.
+    """
     if len(ip.split('.')) != 4 or not (number.isdigit() and 0 < int(number) < 255 for number in ip.split('.')):
         raise ValueError('Invalid IP.')
-    
 
-def validate_argv(params):
+
+def validate_argv(params: int) -> None:
+    """
+    Validates that argv has a specified amount of parameters.
+    :param params: the amount.
+    :raise ValueError: if there aren't exactly params parameters in argv.
+    """
     if len(argv) != params + 1:
         raise ValueError(f'Exactly {params} arguments are necessary, {len(argv) - 1} were inserted.')
 
 
-def send_and_get_returned_file(addr, file):
+def send_and_get_returned_file(addr: tuple[str, int], path: str) -> None:
+    """
+    Sends the file in the given path through UDP socket to the given address.
+    :param addr: the given address.
+    :param path: the given file path.
+    :raise FileNotFoundError: if the given path isn't a file's path.
+    """
     try:
-        f = open(file)
+        f = open(path)
         contents = f.read()
         f.close()
     except FileNotFoundError:
