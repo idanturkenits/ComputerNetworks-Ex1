@@ -34,7 +34,7 @@ def validate_argv(params: int) -> None:
         raise ValueError(f'Exactly {params} arguments are necessary, {len(argv) - 1} were inserted.')
 
 
-def send_and_get_returned_file(addr: tuple[str, int], path: str) -> None:
+def send_and_get_returned_file(addr: (str, int), path: str) -> None:
     """
     Sends the file in the given path through UDP socket to the given address.
     :param addr: the given address.
