@@ -12,7 +12,7 @@ def send_and_get_returned_file(addr, file):
     except FileNotFoundError:
         raise FileNotFoundError("Couldn't find file.")
     s = socket(AF_INET, SOCK_DGRAM)
-    s.settimeout(0.01)
+    s.settimeout(1)
     seen_package_nums = []
     for i in range(0, len(contents), CHUNK_SIZE):
         chunk, packet_number = contents[i:i + CHUNK_SIZE], i // CHUNK_SIZE
