@@ -2,7 +2,7 @@ from socket import socket, AF_INET, SOCK_DGRAM
 from sys import argv
 
 PACKET_SIZE, CHUNK_SIZE, HEADER_SIZE = 100, 90, 10
-
+TIME_OUT_SECONDS = 0.025
 
 def validate_port(port: int) -> None:
     """
@@ -48,7 +48,7 @@ def send_and_get_returned_file(addr: (str, int), path: str) -> None:
     except FileNotFoundError:
         raise FileNotFoundError("Couldn't find file.")
     s = socket(AF_INET, SOCK_DGRAM)
-    s.settimeout(0.25)
+    s.settimeout(TIME_OUT_SECONDS)
     seen_package_nums = []
     for i in range(0, len(contents), CHUNK_SIZE):
         chunk, packet_number = contents[i:i + CHUNK_SIZE], i // CHUNK_SIZE
